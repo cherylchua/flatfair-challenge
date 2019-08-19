@@ -3,7 +3,8 @@
 const {
     _checkRentAmountInput,
     _convertMonthlyRentToWeekly,
-    _checkForFixedMembershipFee
+    _checkForFixedMembershipFee,
+    calculateMembershipFee
 } = require('../../src/services/membership');
 const RENT_LIMITS = require('../../src/config/rent_amount_limits');
 
@@ -90,10 +91,10 @@ describe('_checkForFixedMembershipFee', () => {
                 branch_organisation_unit_name: 'branch_k'
             };
 
-            const membershipFee = await _checkForFixedMembershipFee(
+            const fixedMembershipFee = await _checkForFixedMembershipFee(
                 input.branch_organisation_unit_name
             );
-            expect(membershipFee).toBe(25000);
+            expect(fixedMembershipFee).toBe(25000);
             done();
         });
     });
@@ -104,10 +105,10 @@ describe('_checkForFixedMembershipFee', () => {
                 branch_organisation_unit_name: 'branch_b'
             };
 
-            const membershipFee = await _checkForFixedMembershipFee(
+            const fixedMembershipFee = await _checkForFixedMembershipFee(
                 input.branch_organisation_unit_name
             );
-            expect(membershipFee).toBe(45000);
+            expect(fixedMembershipFee).toBe(45000);
             done();
         });
     });
@@ -118,10 +119,10 @@ describe('_checkForFixedMembershipFee', () => {
                 branch_organisation_unit_name: 'branch_o'
             };
 
-            const membershipFee = await _checkForFixedMembershipFee(
+            const fixedMembershipFee = await _checkForFixedMembershipFee(
                 input.branch_organisation_unit_name
             );
-            expect(membershipFee).toBe(35000);
+            expect(fixedMembershipFee).toBe(35000);
             done();
         });
     });
@@ -132,10 +133,103 @@ describe('_checkForFixedMembershipFee', () => {
                 branch_organisation_unit_name: 'branch_g'
             };
 
-            const membershipFee = await _checkForFixedMembershipFee(
+            const fixedMembershipFee = await _checkForFixedMembershipFee(
                 input.branch_organisation_unit_name
             );
-            expect(membershipFee).toBe(null);
+            expect(fixedMembershipFee).toBe(null);
+            done();
+        });
+    });
+});
+
+describe('calculateMembershipFee', () => {
+    describe('input validation for rent amount fails', () => {
+        test('should throw RangeError', async () => {
+            const input = {
+                rent_amount: 10,
+                rent_period: 'week',
+                organisation_unit: 'branch_k'
+            };
+            try {
+                await calculateMembershipFee(
+                    input.rent_amount,
+                    input.rent_period,
+                    input.organisation_unit
+                );
+            } catch (err) {
+                expect(err).toBeInstanceOf(RangeError);
+            }
+        });
+    });
+
+    describe('branch has fixed membership fee', () => {
+        test('should return the fixed_membership_fee_amount', async done => {
+            const input = {
+                rent_amount: 30,
+                rent_period: 'week',
+                organisation_unit: 'branch_k'
+            };
+
+            const membershipFee = await calculateMembershipFee(
+                input.rent_amount,
+                input.rent_period,
+                input.organisation_unit
+            );
+            expect(membershipFee).toBe(250);
+            done();
+        });
+    });
+
+    describe('branch has fixed membership fee in one of its parents', () => {
+        test('should return the fixed_membership_fee_amount of its parent', async done => {
+            const input = {
+                rent_amount: 200,
+                rent_period: 'month',
+                organisation_unit: 'branch_i'
+            };
+
+            const membershipFee = await calculateMembershipFee(
+                input.rent_amount,
+                input.rent_period,
+                input.organisation_unit
+            );
+            expect(membershipFee).toBe(450);
+            done();
+        });
+    });
+
+    describe('branch does not have fixed membership fee in parents, fee is lower than the minimum', () => {
+        test('should return the minimum fee', async done => {
+            const input = {
+                rent_amount: 110,
+                rent_period: 'month',
+                organisation_unit: 'branch_e'
+            };
+
+            const membershipFee = await calculateMembershipFee(
+                input.rent_amount,
+                input.rent_period,
+                input.organisation_unit
+            );
+            expect(membershipFee).toBe(144);
+            done();
+        });
+    });
+
+    describe('branch does not have fixed membership fee in parents, fee is greater than minimum', () => {
+        test('should return fee as one week rent plus VAT', async done => {
+            const input = {
+                rent_amount: 1500,
+                rent_period: 'month',
+                organisation_unit: 'branch_f'
+            };
+
+            const membershipFee = await calculateMembershipFee(
+                input.rent_amount,
+                input.rent_period,
+                input.organisation_unit
+            );
+            expect(membershipFee).toBe(414);
             done();
         });
     });

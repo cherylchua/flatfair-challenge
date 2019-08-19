@@ -36,14 +36,24 @@ const calculateMembershipFee = async function(
         membershipFee = MIN_MEMBERSHIP_FEE_WITH_VAT;
     }
 
-    const fixedMembershipFee = _checkForFixedMembershipFee(organisation_unit);
+    const fixedMembershipFee = await _checkForFixedMembershipFee(
+        organisation_unit
+    );
 
     if (fixedMembershipFee !== null) {
         // NOTE: amount stored as pence in db
         membershipFee = fixedMembershipFee / 100;
     }
 
-    return membershipFee;
+    if (membershipFee !== null) {
+        return Math.round(membershipFee);
+    } else {
+        const calculateMembershipFeeError = new Error(
+            'Could not calculate membership fee.'
+        );
+        calculateMembershipFeeError.name = 'CALCULATE_MEMBERSHIP_FEE_ERROR';
+        throw calculateMembershipFeeError;
+    }
 };
 
 async function _checkForFixedMembershipFee(branch_organisation_unit_name) {
