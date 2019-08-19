@@ -2,7 +2,8 @@
 
 const {
     _checkRentAmountInput,
-    _convertMonthlyRentToWeekly
+    _convertMonthlyRentToWeekly,
+    _checkForFixedMembershipFee
 } = require('../../src/services/membership');
 const RENT_LIMITS = require('../../src/config/rent_amount_limits');
 
@@ -79,5 +80,63 @@ describe('_convertMonthlyRentToWeekly', () => {
             input.monthly_amount
         );
         expect(weeklyRentAmount).toBe(1956.16);
+    });
+});
+
+describe('_checkForFixedMembershipFee', () => {
+    describe('branch has fixed membership fee', () => {
+        test('should return the fixed_membership_fee_amount', async done => {
+            const input = {
+                branch_organisation_unit_name: 'branch_k'
+            };
+
+            const membershipFee = await _checkForFixedMembershipFee(
+                input.branch_organisation_unit_name
+            );
+            expect(membershipFee).toBe(25000);
+            done();
+        });
+    });
+
+    describe('branch does not have fixed membership fee, but area has fixed membership fee', () => {
+        test('should return the fixed_membership_fee_amount for the area', async done => {
+            const input = {
+                branch_organisation_unit_name: 'branch_b'
+            };
+
+            const membershipFee = await _checkForFixedMembershipFee(
+                input.branch_organisation_unit_name
+            );
+            expect(membershipFee).toBe(45000);
+            done();
+        });
+    });
+
+    describe('branch and area does not have fixed membership fee, but division has fixed membership fee', () => {
+        test('should return the fixed_membership_fee_amount for the division', async done => {
+            const input = {
+                branch_organisation_unit_name: 'branch_o'
+            };
+
+            const membershipFee = await _checkForFixedMembershipFee(
+                input.branch_organisation_unit_name
+            );
+            expect(membershipFee).toBe(35000);
+            done();
+        });
+    });
+
+    describe('branch, area, and division does not have fixed membership fee', () => {
+        test('should return a null', async done => {
+            const input = {
+                branch_organisation_unit_name: 'branch_g'
+            };
+
+            const membershipFee = await _checkForFixedMembershipFee(
+                input.branch_organisation_unit_name
+            );
+            expect(membershipFee).toBe(null);
+            done();
+        });
     });
 });

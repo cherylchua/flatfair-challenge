@@ -20,17 +20,17 @@ describe('getOrganisationUnitDetailsAndConfigByName', () => {
                 input.name
             );
 
-            expect(organisationUnitDetailsAndConfig[0].name).toBe(
+            expect(organisationUnitDetailsAndConfig.name).toBe(
                 expected_output.name
             );
-            expect(organisationUnitDetailsAndConfig[0].parent_org).toBe(
+            expect(organisationUnitDetailsAndConfig.parent_org).toBe(
                 expected_output.parent_org
             );
             expect(
-                organisationUnitDetailsAndConfig[0].has_fixed_membership_fee
+                organisationUnitDetailsAndConfig.has_fixed_membership_fee
             ).toBe(expected_output.has_fixed_membership_fee);
             expect(
-                organisationUnitDetailsAndConfig[0].fixed_membership_fee_amount
+                organisationUnitDetailsAndConfig.fixed_membership_fee_amount
             ).toBe(expected_output.fixed_membership_fee_amount);
 
             done();

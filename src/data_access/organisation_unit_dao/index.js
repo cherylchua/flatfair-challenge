@@ -21,7 +21,7 @@ async function getOrganisationUnitDetailsAndConfigByName(
             )
             .where('name', organisation_unit_name);
 
-        return organisationUnitDetailsAndConfig;
+        return organisationUnitDetailsAndConfig[0];
     } catch (err) {
         err.name = 'DATABASE_ERROR';
         throw err;

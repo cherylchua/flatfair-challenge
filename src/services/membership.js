@@ -1,6 +1,9 @@
 'use strict';
 const assert = require('assert-plus');
 const RENT_LIMITS = require('../config/rent_amount_limits');
+const {
+    getOrganisationUnitDetailsAndConfigByName
+} = require('../data_access/organisation_unit_dao');
 
 const PERIOD_WEEK = 'week';
 const PERIOD_MONTH = 'month';
@@ -33,8 +36,49 @@ const calculateMembershipFee = async function(
         membershipFee = MIN_MEMBERSHIP_FEE_WITH_VAT;
     }
 
+    const fixedMembershipFee = _checkForFixedMembershipFee(organisation_unit);
+
+    if (fixedMembershipFee !== null) {
+        // NOTE: amount stored as pence in db
+        membershipFee = fixedMembershipFee / 100;
+    }
+
     return membershipFee;
 };
+
+async function _checkForFixedMembershipFee(branch_organisation_unit_name) {
+    let fixedMembershipFee = null;
+
+    const branchDetailsAndConfig = await getOrganisationUnitDetailsAndConfigByName(
+        branch_organisation_unit_name
+    );
+
+    if (branchDetailsAndConfig.has_fixed_membership_fee === 1) {
+        fixedMembershipFee = branchDetailsAndConfig.fixed_membership_fee_amount;
+
+        return fixedMembershipFee;
+    }
+
+    let parentOrganisation;
+
+    parentOrganisation = branchDetailsAndConfig.parent_org;
+
+    while (parentOrganisation !== null) {
+        const organisationUnitDetailsAndConfig = await getOrganisationUnitDetailsAndConfigByName(
+            parentOrganisation
+        );
+
+        if (organisationUnitDetailsAndConfig.has_fixed_membership_fee === 1) {
+            fixedMembershipFee =
+                organisationUnitDetailsAndConfig.fixed_membership_fee_amount;
+            return fixedMembershipFee;
+        }
+
+        parentOrganisation = organisationUnitDetailsAndConfig.parent_org;
+    }
+
+    return fixedMembershipFee;
+}
 
 function _convertMonthlyRentToWeekly(monthly_amount) {
     const weeklyAmount = ((monthly_amount * 12) / 365) * 7;
@@ -72,5 +116,6 @@ function _checkRentAmountInput(amount, period) {
 module.exports = {
     calculateMembershipFee,
     _checkRentAmountInput,
-    _convertMonthlyRentToWeekly
+    _convertMonthlyRentToWeekly,
+    _checkForFixedMembershipFee
 };
