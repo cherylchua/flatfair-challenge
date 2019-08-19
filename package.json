@@ -4,7 +4,7 @@
   "description": "Application to calculate membership fee for an organisation unit",
   "main": "index.js",
   "scripts": {
-    "test": "npm run format && npm run lint && exit 1",
+    "test": "npm run format && npm run lint && jest",
     "lint": "./node_modules/.bin/eslint .",
     "format": "prettier --tab-width 4 --single-quote true --write \"./**/*.js\" \"!./coverage/**/*.js\""
   },
@@ -23,6 +23,7 @@
     "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-prettier": "^3.1.0",
     "husky": "^3.0.4",
+    "jest": "^24.9.0",
     "nodemon": "^1.19.1",
     "prettier": "^1.18.2"
   },
