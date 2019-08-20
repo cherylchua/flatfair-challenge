@@ -47,6 +47,8 @@ To make a request, make a [Postman](https://www.getpostman.com/) request to ```h
 }
 ```
 
+![image](https://user-images.githubusercontent.com/32840688/63343240-666ba080-c345-11e9-8227-e80435d10d37.png)
+
 ### Possible Error Responses
 
 1. Express Validation Errors: Request body must conform to these rules
