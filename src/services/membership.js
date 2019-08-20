@@ -1,12 +1,11 @@
 'use strict';
 const assert = require('assert-plus');
 const RENT_LIMITS = require('../config/rent_amount_limits');
+const RENT_PERIODS = require('../config/rent_periods');
 const {
     getOrganisationUnitDetailsAndConfigByName
 } = require('../data_access/organisation_unit_dao');
 
-const PERIOD_WEEK = 'week';
-const PERIOD_MONTH = 'month';
 const VAT_MULTIPLIER = 1.2;
 const MIN_MEMBERSHIP_FEE_WITH_VAT = 120 * 1.2;
 
@@ -23,11 +22,11 @@ const calculateMembershipFee = async function(
 
     let membershipFee;
 
-    if (rent_period === PERIOD_WEEK) {
+    if (rent_period === RENT_PERIODS.WEEK) {
         membershipFee = rent_period * VAT_MULTIPLIER;
     }
 
-    if (rent_period === PERIOD_MONTH) {
+    if (rent_period === RENT_PERIODS.MONTH) {
         membershipFee =
             _convertMonthlyRentToWeekly(rent_amount) * VAT_MULTIPLIER;
     }
@@ -104,7 +103,7 @@ function _checkRentAmountInput(amount, period) {
         amount < RENT_LIMITS.MIN_RENT_AMOUNT_PER_MONTH ||
         amount > RENT_LIMITS.MAX_RENT_AMOUNT_PER_MONTH;
 
-    if (period === PERIOD_WEEK) {
+    if (period === RENT_PERIODS.WEEK) {
         if (isOutOfWeeklyAmountRange) {
             throw new RangeError(
                 `Input amount ${amount} is outside the range of min ${RENT_LIMITS.MIN_RENT_AMOUNT_PER_WEEK}/week and max ${RENT_LIMITS.MAX_RENT_AMOUNT_PER_WEEK}/week`
@@ -112,7 +111,7 @@ function _checkRentAmountInput(amount, period) {
         }
     }
 
-    if (period === PERIOD_MONTH) {
+    if (period === RENT_PERIODS.MONTH) {
         if (isOutOfMonthlyAmountRange) {
             throw new RangeError(
                 `Input amount ${amount} is outside the range of min ${RENT_LIMITS.MIN_RENT_AMOUNT_PER_MONTH}/month and max ${RENT_LIMITS.MAX_RENT_AMOUNT_PER_MONTH}/month`
