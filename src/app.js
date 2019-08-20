@@ -3,7 +3,7 @@ const expressValidation = require('express-validation');
 const Joi = require('@hapi/joi');
 const bodyParser = require('body-parser');
 
-const { calculateMembershipFee } = require('../src/services/membership');
+const membershipFeeController = require('../src/controllers/membership_fee_controller');
 const RENT_PERIODS = require('../src/config/rent_periods');
 
 const app = express();
@@ -27,27 +27,14 @@ app.get(
             organisation_unit: Joi.string().required()
         })
     }),
-    async function(req, res) {
-        try {
-            const membershipFee = await calculateMembershipFee(
-                req.body.rent_amount,
-                req.body.rent_period,
-                req.body.organisation_unit
-            );
-            return res.json({ membershipFee: membershipFee });
-        } catch (err) {
-            return res.send({
-                error_name: err.name,
-                error_message: err.message
-            });
-        }
-    }
+    membershipFeeController.getMembershipFee
 );
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}!`);
 });
 
+// eslint-disable-next-line no-unused-vars
 app.use(function(err, req, res, next) {
     res.status(400).json(err);
 });

@@ -14,7 +14,7 @@ async function getOrganisationUnitDetailsAndConfigByName(
                 'fixed_membership_fee_amount'
             )
             .from('organisationunits')
-            .innerJoin(
+            .leftJoin(
                 'organisationunitconfigs',
                 'organisationunits.config_id',
                 'organisationunitconfigs.id'
