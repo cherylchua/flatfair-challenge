@@ -1,3 +1,7 @@
+'use strict';
+
+process.env.NODE_ENV = 'development';
+
 const {
     getOrganisationUnitDetailsAndConfigByName
 } = require('../../src/data_access/organisation_unit_dao');

@@ -1,5 +1,7 @@
 'use strict';
 
+process.env.NODE_ENV = 'development';
+
 const {
     _checkRentAmountInput,
     _convertMonthlyRentToWeekly,
@@ -85,6 +87,20 @@ describe('_convertMonthlyRentToWeekly', () => {
 });
 
 describe('_checkForFixedMembershipFee', () => {
+    describe('branch does not have any config, but area has fixed membership fee', () => {
+        test('should return the fixed_membership_fee_amount of the area', async done => {
+            const input = {
+                branch_organisation_unit_name: 'branch_d'
+            };
+
+            const fixedMembershipFee = await _checkForFixedMembershipFee(
+                input.branch_organisation_unit_name
+            );
+            expect(fixedMembershipFee).toBe(45000);
+            done();
+        });
+    });
+
     describe('branch has fixed membership fee', () => {
         test('should return the fixed_membership_fee_amount', async done => {
             const input = {

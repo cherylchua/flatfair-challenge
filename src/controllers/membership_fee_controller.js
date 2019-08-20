@@ -15,5 +15,4 @@ exports.getMembershipFee = async function(req, res) {
             error_message: err.message
         });
     }
-}
-
+};

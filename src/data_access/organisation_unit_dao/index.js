@@ -1,6 +1,8 @@
 'use strict';
 
-const knex = require('knex')(require('../../../knexfile').development);
+const environment = process.env.NODE_ENV || 'development';
+
+const knex = require('knex')(require('../../../knexfile')[environment]);
 
 async function getOrganisationUnitDetailsAndConfigByName(
     organisation_unit_name
