@@ -1,4 +1,4 @@
-# Flatfair Challenge
+# Rental Membership Calculator
 
 A web application to calculate membership fee based on the rental amount, period of rent, and the organisation unit. 
 
